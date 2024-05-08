@@ -1,10 +1,12 @@
 import pyarrow as pa
+from pubsub import pub
+
 
 class ArrowProcessor:
     def __init__(self, message_bus):
         self.message_bus = message_bus
         # Subscribe to a specific message type that IOManager publishes
-        self.message_bus.subscribe('data_ready', self.process_data)
+        pub.subscribe(self.process_data, 'data_ready')
 
     def process_data(self, data):
         # Assuming 'data' is a dictionary of pandas DataFrames
@@ -13,5 +15,5 @@ class ArrowProcessor:
         # Here you could add further processing, saving to Parquet, etc.
         print("Data processed and converted to Arrow format.")
 
-        # Optionally, publish processed data for further use or storage
-        self.message_bus.publish('arrow_data_ready', data=arrow_tables)
+        # Publish processed data for further use or storage
+        pub.sendMessage('arrow_data_ready', data=arrow_tables)

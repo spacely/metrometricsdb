@@ -2,7 +2,7 @@
 FROM python:3.8-slim
 
 # Set the working directory in the container
-WORKDIR /usr/src/app
+WORKDIR /usr/src/app/cli
 
 # Copy the current directory contents into the container at /usr/src/app
 COPY . .
@@ -17,4 +17,4 @@ EXPOSE 80
 ENV NAME MetroDB
 
 # Run the CLI tool when the container launches
-CMD ["python", "metrodb.py"]
+CMD ["python", "cli/metrodb.py"]
