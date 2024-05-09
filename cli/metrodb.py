@@ -1,7 +1,13 @@
 import click
 from pubsub import pub
+from business_logic import io_manager
 
-
+def setup_components():
+    print('Initialized IO Manager')
+    iomanager = io_manager.IOManager()
+    return iomanager
+    
+    
 
 
 def show_welcome_screen():
@@ -54,5 +60,5 @@ def query(query):
     # Your query execution logic here
 
 if __name__ == '__main__':
-    
+    iomanager =  setup_components()
     cli()
