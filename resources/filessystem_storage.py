@@ -35,12 +35,11 @@ class FileSystemStorage:
             "fare_attributes": "fare_attributes.txt",
             "fare_rules": "fare_rules.txt",
             "shapes": "shapes.txt",
-            
         }
         data = {}
         for key, filename in gtfs_files.items():
             loaded_data = self.load_file(filename)
             if loaded_data is not None:
                 data[key] = loaded_data
-            
+
         return data

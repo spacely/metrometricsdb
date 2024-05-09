@@ -4,7 +4,7 @@ from resources import filessystem_storage, arrow_storage
 
 class IOAccess:
     def __init__(self):
-     return
+        return
 
     def load_data(self, folder_path):
         """
@@ -13,7 +13,6 @@ class IOAccess:
         storage_load = filessystem_storage.FileSystemStorage(folder_path)
         print(f"Accessing GTFS data from the folder: {folder_path}")
         try:
-            
             gtfs_data = storage_load.load_gtfs_files()
             print("Data accessed and ready for processing.")
             return gtfs_data

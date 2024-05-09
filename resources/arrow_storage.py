@@ -6,7 +6,7 @@ class ArrowProcessor:
     def __init__(self, data):
         self.data = data
         # Subscribe to a specific message type that IOManager publishes
-        #pub.subscribe(self.process_data, "data_ready")
+        # pub.subscribe(self.process_data, "data_ready")
 
     def process_data(self):
         # Assuming 'data' is a dictionary of pandas DataFrames
@@ -16,4 +16,4 @@ class ArrowProcessor:
         print("Data processed and converted to Arrow format.")
 
         # Publish processed data for further use or storage
-        #pub.sendMessage("arrow_data_ready", data=arrow_tables)
+        # pub.sendMessage("arrow_data_ready", data=arrow_tables)
