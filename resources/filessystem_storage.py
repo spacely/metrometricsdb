@@ -1,29 +1,62 @@
-import pandas as pd
+"""
+A module for retrieving GTFS files from a specified directory.
+"""
+
 import os
 import logging
+import pandas as pd
 
 
-class FileSystemStorage:
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
+
+
+class FileSystemStorage:  # pylint: disable=R0903
+    """
+    Class for handling the retrieval of GTFS files from a filesystem.
+    """
+
     def __init__(self, base_folder):
+        """
+        Initialize the FileSystemStorage class with a directory path.
+
+        Args:
+            base_folder (str): The base directory from which GTFS files are loaded.
+        """
         self.base_folder = base_folder
 
     def load_file(self, filename):
-        """Utility function to load a single file"""
-        logging.info(f"Loading data from {filename}")
+        """
+        Load a single file from the filesystem.
+
+        Args:
+            filename (str): The name of the file to load.
+
+        Returns:
+            pd.DataFrame or None: The loaded data as a pandas DataFrame,
+            or None if the file cannot be loaded.
+        """
+        logging.info("Loading data from %s", filename)
+
         file_path = os.path.join(self.base_folder, filename)
+        logging.info("Attempting to load data from %s", file_path)
+
         try:
             return pd.read_csv(file_path)
-        except FileNotFoundError as e:
+        except FileNotFoundError as file_not_found:
+            logging.error("Failed to load data from %s: %s", file_path, file_not_found)
             print(f"File not found: {file_path}")
-            logging.error(f"Failed to load data from {file_path}: {str(e)}")
-            return None
-        except Exception as e:
-            print(f"Error reading {file_path}: {str(e)}")
-            logging.error(f"Failed to load data from {file_path}: {str(e)}")
+
             return None
 
     def load_gtfs_files(self):
-        """Load all necessary GTFS files"""
+        """
+        Load all necessary GTFS files specified in a dictionary.
+
+        Returns:
+            dict: A dictionary containing data from various GTFS files.
+        """
         gtfs_files = {
             "agency": "agency.txt",
             "stops": "stops.txt",
@@ -43,3 +76,20 @@ class FileSystemStorage:
                 data[key] = loaded_data
 
         return data
+
+
+def store_arrow_data():  # pylint: disable=R0903
+    """
+    Store data in Apache Arrow format at a specified base path.
+    """
+    return None
+    # Implementation here
+
+
+def retrieve_arrow_data():  # pylint: disable=R0903
+    """
+    Retrieve data in Apache Arrow format from a specified base path.
+    """
+
+    return None
+    # Implementation here

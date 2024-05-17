@@ -1,3 +1,4 @@
+""" The entry point into the program, Command Line in."""
 import click
 from pubsub import pub
 from business_logic import io_manager
