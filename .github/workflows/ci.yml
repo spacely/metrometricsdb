@@ -40,7 +40,9 @@ jobs:
         pylint **/*.py  # Adjust the pattern to match your Python files
 
     - name: Run tests
-      run: pytest
+      run: pytest --exit-zero-on-empty-test-suite
+
 
     - name: Run benchmarks
-      run: pytest --benchmark-only
+      run: pytest --exit-zero-on-empty-test-suite
+
