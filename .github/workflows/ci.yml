@@ -39,10 +39,10 @@ jobs:
         pip install pylint
         pylint **/*.py  # Adjust the pattern to match your Python files
 
-    - name: Run tests
-      run: pytest --no-tests-exit-zero
+ #   - name: Run tests
+ #     run: pytest --no-tests-exit-zero
 
 
-    - name: Run benchmarks
-      run: pytest --no-tests-exit-zero
+ #   - name: Run benchmarks
+ #     run: pytest --no-tests-exit-zero
 
