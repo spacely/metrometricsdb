@@ -5,12 +5,18 @@ from business_logic import io_manager
 
 
 def setup_components():
+    """
+    This sets up the entire infrastructure.
+    """
     print("Initialized IO Manager")
     iomanager = io_manager.IOManager()
     return iomanager
 
 
 def show_welcome_screen():
+    """
+    The main screen of the application
+    """
     click.clear()
     click.secho("Welcome to MetroDB CLI Tool", fg="blue", bold=True)
     click.echo("MetroDB is a command-line tool for managing GTFS data and queries.\n")
@@ -32,7 +38,7 @@ def cli(ctx):
             if cmd == "exit":
                 click.secho("Exiting program.", fg="red")
                 break
-            elif cmd.startswith("load "):
+            if cmd.startswith("load "):
                 folder_path = cmd.split(" ", 1)[1]  # Extract path from command
                 ctx.invoke(load, folder_path=folder_path)
             elif cmd.startswith("query "):
@@ -57,13 +63,13 @@ def load(folder_path):
 
 
 @cli.command()
-@click.argument("query", type=str)
-def query(query):
+@click.argument("query_string", type=str)
+def query(query_string):
     """Execute a SQL query on the loaded GTFS data."""
-    click.secho(f"Executing query: {query}", fg="green")
+    click.secho(f"Executing query: {query_string}", fg="green")
     # Your query execution logic here
 
 
 if __name__ == "__main__":
-    iomanager = setup_components()
-    cli()
+    iomanager_main = setup_components()
+    cli()  # pylint: disable=no-value-for-parameter
