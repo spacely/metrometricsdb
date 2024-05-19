@@ -1,3 +1,6 @@
+"""
+A tool to manage a messaging bus system that tracks how data flows through the system.
+"""
 from pubsub import pub
 
 
