@@ -33,24 +33,26 @@ class ArrowProcessor:  # pylint: disable=R0903
         arrow_tables = {key: pa.Table.from_pandas(df) for key, df in self.data.items()}
 
         # Join Trips and Routes
-        if 'trips' in arrow_tables and 'routes' in arrow_tables:
-            trips_table = arrow_tables['trips'].to_pandas()
-            routes_table = arrow_tables['routes'].to_pandas()
-            trips_routes = trips_table.merge(routes_table, on='route_id', how='left')
-            arrow_tables['trips_routes'] = pa.Table.from_pandas(trips_routes)
+        if "trips" in arrow_tables and "routes" in arrow_tables:
+            trips_table = arrow_tables["trips"].to_pandas()
+            routes_table = arrow_tables["routes"].to_pandas()
+            trips_routes = trips_table.merge(routes_table, on="route_id", how="left")
+            arrow_tables["trips_routes"] = pa.Table.from_pandas(trips_routes)
 
         # Join Trips and Stop Times
-        if 'trips' in arrow_tables and 'stop_times' in arrow_tables:
-            trips_table = arrow_tables['trips'].to_pandas()
-            stop_times_table = arrow_tables['stop_times'].to_pandas()
-            trips_stop_times = trips_table.merge(stop_times_table, on='trip_id', how='left')
-            arrow_tables['trips_stop_times'] = pa.Table.from_pandas(trips_stop_times)
+        if "trips" in arrow_tables and "stop_times" in arrow_tables:
+            trips_table = arrow_tables["trips"].to_pandas()
+            stop_times_table = arrow_tables["stop_times"].to_pandas()
+            trips_stop_times = trips_table.merge(
+                stop_times_table, on="trip_id", how="left"
+            )
+            arrow_tables["trips_stop_times"] = pa.Table.from_pandas(trips_stop_times)
 
         print("Data processed and combined into Arrow format.")
         print(arrow_tables)
         return arrow_tables
-            # Publish processed data for further use or storage
-            # pub.sendMessage("arrow_data_ready", data=arrow_tables)
+        # Publish processed data for further use or storage
+        # pub.sendMessage("arrow_data_ready", data=arrow_tables)
 
     def save_arrow_data(self):
         """

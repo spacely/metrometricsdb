@@ -32,7 +32,7 @@ class IOAccess:
         print(f"Accessing GTFS data from the folder: {folder_path}")
         try:
             gtfs_data = storage_load.load_gtfs_files()
-            print("The GTFS files",type(gtfs_data))
+            print("The GTFS files", type(gtfs_data))
             print("Data accessed and ready for processing.")
             return gtfs_data
         except Exception as io_error:
