@@ -29,15 +29,28 @@ class ArrowProcessor:  # pylint: disable=R0903
             dict: A dictionary where keys are strings representing the data type
                   and values are Apache Arrow Tables.
         """
-        # Assuming 'data' is a dictionary of pandas DataFrames
         print("Processing data with Apache Arrow...")
         arrow_tables = {key: pa.Table.from_pandas(df) for key, df in self.data.items()}
-        # Here you could add further processing, saving to Parquet, etc.
-        print("Data processed and converted to Arrow format.")
-        return arrow_tables
 
-        # Publish processed data for further use or storage
-        # pub.sendMessage("arrow_data_ready", data=arrow_tables)
+        # Join Trips and Routes
+        if 'trips' in arrow_tables and 'routes' in arrow_tables:
+            trips_table = arrow_tables['trips'].to_pandas()
+            routes_table = arrow_tables['routes'].to_pandas()
+            trips_routes = trips_table.merge(routes_table, on='route_id', how='left')
+            arrow_tables['trips_routes'] = pa.Table.from_pandas(trips_routes)
+
+        # Join Trips and Stop Times
+        if 'trips' in arrow_tables and 'stop_times' in arrow_tables:
+            trips_table = arrow_tables['trips'].to_pandas()
+            stop_times_table = arrow_tables['stop_times'].to_pandas()
+            trips_stop_times = trips_table.merge(stop_times_table, on='trip_id', how='left')
+            arrow_tables['trips_stop_times'] = pa.Table.from_pandas(trips_stop_times)
+
+        print("Data processed and combined into Arrow format.")
+        print(arrow_tables)
+        return arrow_tables
+            # Publish processed data for further use or storage
+            # pub.sendMessage("arrow_data_ready", data=arrow_tables)
 
     def save_arrow_data(self):
         """
