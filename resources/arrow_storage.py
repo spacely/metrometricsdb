@@ -1,67 +1,78 @@
 """
 Module for processing GTFS data files and converting them to Apache Arrow format.
 """
+from typing import Dict
 import pyarrow as pa
+import pyarrow.parquet as pq
+import pandas as pd
 
-
-class ArrowProcessor:  # pylint: disable=R0903
-    """
-    A class that manages the logic of converting GTFS files in CSV format to Apache Arrow.
-    """
-
-    def __init__(self, data):
+class ArrowProcessor:
+    def __init__(self, data: Dict[str, pd.DataFrame]):
         """
         Initialize the class with the data to be converted.
 
         Args:
-            data (dict): A dictionary where keys are strings representing the data type
-                         and values are pandas DataFrames to be converted.
+            data: A dictionary where keys are strings representing the data type
+                  and values are pandas DataFrames to be converted.
         """
         self.data = data
-        # Subscribe to a specific message type that IOManager publishes
-        # pub.subscribe(self.process_data, "data_ready")
+        self.arrow_tables = {}
 
-    def process_data(self):
+    def convert_to_arrow(self) -> None:
+        """Convert data from pandas DataFrame format to Apache Arrow Table format."""
+        self.arrow_tables = {key: pa.Table.from_pandas(df) for key, df in self.data.items()}
+
+    def join_trips_and_routes(self) -> None:
+        """Join Trips and Routes tables if they exist."""
+        if "trips" in self.arrow_tables and "routes" in self.arrow_tables:
+            trips_table = self.arrow_tables["trips"].to_pandas()
+            routes_table = self.arrow_tables["routes"].to_pandas()
+            trips_routes = trips_table.merge(routes_table, on="route_id", how="left")
+            self.arrow_tables["trips_routes"] = pa.Table.from_pandas(trips_routes)
+
+    def join_trips_and_stop_times(self) -> None:
+        """Join Trips and Stop Times tables if they exist."""
+        if "trips" in self.arrow_tables and "stop_times" in self.arrow_tables:
+            trips_table = self.arrow_tables["trips"].to_pandas()
+            stop_times_table = self.arrow_tables["stop_times"].to_pandas()
+            trips_stop_times = trips_table.merge(stop_times_table, on="trip_id", how="left")
+            self.arrow_tables["trips_stop_times"] = pa.Table.from_pandas(trips_stop_times)
+
+    def process_data(self) -> Dict[str, pa.Table]:
         """
-        Convert data from pandas DataFrame format to Apache Arrow Table format.
+        Process the data by converting to Arrow and performing necessary joins.
 
         Returns:
-            dict: A dictionary where keys are strings representing the data type
-                  and values are Apache Arrow Tables.
+            A dictionary where keys are strings representing the data type
+            and values are Apache Arrow Tables.
         """
         print("Processing data with Apache Arrow...")
-        arrow_tables = {key: pa.Table.from_pandas(df) for key, df in self.data.items()}
+        self.convert_to_arrow()
+        self.join_trips_and_routes()
+        self.join_trips_and_stop_times()
+        return self.arrow_tables
 
-        # Join Trips and Routes
-        if "trips" in arrow_tables and "routes" in arrow_tables:
-            trips_table = arrow_tables["trips"].to_pandas()
-            routes_table = arrow_tables["routes"].to_pandas()
-            trips_routes = trips_table.merge(routes_table, on="route_id", how="left")
-            arrow_tables["trips_routes"] = pa.Table.from_pandas(trips_routes)
-
-        # Join Trips and Stop Times
-        if "trips" in arrow_tables and "stop_times" in arrow_tables:
-            trips_table = arrow_tables["trips"].to_pandas()
-            stop_times_table = arrow_tables["stop_times"].to_pandas()
-            trips_stop_times = trips_table.merge(
-                stop_times_table, on="trip_id", how="left"
-            )
-            arrow_tables["trips_stop_times"] = pa.Table.from_pandas(trips_stop_times)
-
-        print("Data processed and combined into Arrow format.")
-        print(arrow_tables)
-        return arrow_tables
-        # Publish processed data for further use or storage
-        # pub.sendMessage("arrow_data_ready", data=arrow_tables)
-
-    def save_arrow_data(self):
+    def save_arrow_data(self, output_dir: str) -> None:
         """
-        Saves arrow to parquuet
-        """
-        return None
+        Save Arrow tables to Parquet files.
 
-    def retrieve_arrow_data(self):
+        Args:
+            output_dir: Directory to save the Parquet files.
         """
-        Retrieves parquet and convert to arrow
+        for key, table in self.arrow_tables.items():
+            pq.write_table(table, f"{output_dir}/{key}.parquet")
+
+    def retrieve_arrow_data(self, input_dir: str) -> Dict[str, pa.Table]:
         """
-        return None
+        Retrieve Parquet files and convert to Arrow tables.
+
+        Args:
+            input_dir: Directory containing the Parquet files.
+
+        Returns:
+            A dictionary of Arrow tables.
+        """
+        retrieved_tables = {}
+        for key in self.arrow_tables.keys():
+            retrieved_tables[key] = pq.read_table(f"{input_dir}/{key}.parquet")
+        return retrieved_tables
